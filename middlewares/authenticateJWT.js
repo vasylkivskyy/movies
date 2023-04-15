@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { status, code } from "../constants/statuses.js";
+import { status, code } from "../constants/constants.js";
 import { getErrorResponse } from "../helpers/errorResponse.js";
 
 export function authenticateJWT(req, res, next) {

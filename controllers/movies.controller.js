@@ -1,10 +1,12 @@
 import { Movie, Actor } from "../db/models/index.js";
-import { code, status } from "../constants/statuses.js";
+import { code, status } from "../constants/constants.js";
 import { Op } from "sequelize";
 import { getErrorResponse } from "../helpers/errorResponse.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import multer from "multer";
+import { upload } from "../helpers/multerUpload.js";
 
 export const createMoviesController = async (req, res) => {
   const { title, year, format, actors } = req.body;
@@ -170,43 +172,58 @@ export const updateMovieByIdController = async (req, res) => {
 };
 
 export const importMoviesController = async (req, res) => {
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const filePath = path.join(__dirname, "..", req.file.path);
-  const fileContents = fs.readFileSync(filePath, "utf-8");
+  upload(req, res, async (err) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(400).json({ error: err.message });
+    } else if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const filePath = path.join(__dirname, "..", req.file.path);
+    const fileContents = fs.readFileSync(filePath, "utf-8");
+    const movies = [];
 
-  const movies = [];
+    const movieRegex =
+      /Title: (.+)\nRelease Year: (\d{4})\nFormat: (.+)\nStars: (.+)\n/g;
+    let match;
 
-  const movieRegex =
-    /Title: (.+)\nRelease Year: (\d{4})\nFormat: (.+)\nStars: (.+)\n/g;
-  let match;
+    while ((match = movieRegex.exec(fileContents)) !== null) {
+      const movie = {
+        title: match[1],
+        "Release Year": match[2],
+        Format: match[3],
+        Stars: match[4],
+      };
+      movies.push(movie);
+    }
+    const savedMovies = [];
+    for (const movie of movies) {
+      const [savedMovie, created] = await Movie.findOrCreate({
+        where: {
+          title: movie.title,
+          year: movie["Release Year"],
+        },
+        defaults: {
+          title: movie.title,
+          year: movie["Release Year"],
+          format: movie.Format,
+        },
+      });
+      if (!created) {
+        savedMovie.format = movie.Format;
+        await savedMovie.save();
+      }
+      savedMovies.push(savedMovie);
+    }
+    await fs.promises.unlink(filePath);
 
-  while ((match = movieRegex.exec(fileContents)) !== null) {
-    const movie = {
-      title: match[1],
-      "Release Year": match[2],
-      Format: match[3],
-      Stars: match[4],
-    };
-    movies.push(movie);
-  }
-
-  const savedMovies = [];
-  for (const movie of movies) {
-    const savedMovie = await Movie.create({
-      title: movie.title,
-      year: movie["Release Year"],
-      format: movie.Format,
+    res.json({
+      data: savedMovies,
+      meta: {
+        imported: savedMovies.length,
+        total: savedMovies.length,
+      },
+      status: status.SUCCESS,
     });
-    savedMovies.push(savedMovie);
-  }
-  await fs.promises.unlink(filePath);
-
-  res.json({
-    data: savedMovies,
-    meta: {
-      imported: savedMovies.length,
-      total: savedMovies.length,
-    },
-    status: status.SUCCESS,
   });
 };

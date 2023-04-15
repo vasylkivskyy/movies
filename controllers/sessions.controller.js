@@ -1,7 +1,7 @@
 import User from "../db/models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { status, code } from "../constants/statuses.js";
+import { status, code } from "../constants/constants.js";
 import { getErrorResponse } from "../helpers/errorResponse.js";
 
 const failedMessage = getErrorResponse(

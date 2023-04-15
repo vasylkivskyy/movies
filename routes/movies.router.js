@@ -10,12 +10,6 @@ import {
 } from "../controllers/movies.controller.js";
 import { authenticateJWT } from "../middlewares/authenticateJWT.js";
 import { asyncWrapper } from "../helpers/async-wrapper.js";
-import multer from "multer";
-
-const upload = multer({
-  dest: "uploads/",
-  limits: { fileSize: 10 * 1024 },
-});
 
 router.get(
   "/",
@@ -50,7 +44,6 @@ router.patch(
 router.post(
   "/import",
   //asyncWrapper(authenticateJWT),
-  upload.single("file"),
   asyncWrapper(importMoviesController)
 );
 

@@ -1,7 +1,7 @@
 import User from "../db/models/User.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { code, status } from "../constants/statuses.js";
+import { code, status } from "../constants/constants.js";
 import { getErrorResponse } from "../helpers/errorResponse.js";
 
 export const userController = async (req, res) => {

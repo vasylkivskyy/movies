@@ -11,3 +11,7 @@ export const code = {
   notFoundMovie: "MOVIE_NOT_FOUND",
   formatError: "FORMAT_ERROR",
 };
+
+export const file = {
+  queryName: "file",
+};
