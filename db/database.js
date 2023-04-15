@@ -4,6 +4,10 @@ const sequilize = new Sequilize("movies-db", "user", "password", {
   dialect: "sqlite",
   host: "./dev.sqlite",
   transactionType: "IMMEDIATE",
+  // define: {
+  //   charset: "utf8",
+  //   collate: "utf8_general_ci",
+  // },
   // pool: {
   //   max: 100,
   //   min: 0,

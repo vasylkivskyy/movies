@@ -7,6 +7,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import { upload } from "../helpers/multerUpload.js";
+import sequelize from "../db/database.js";
 
 export const createMoviesController = async (req, res) => {
   const { title, year, format, actors } = req.body;
@@ -53,6 +54,8 @@ export const getMoviesController = async (req, res) => {
   const validOrders = ["ASC", "DESC"];
   const sanitizedSort = validSortColumns.includes(sort) ? sort : "id";
   const sanitizedOrder = validOrders.includes(order) ? order : "ASC";
+  const orderClause =
+    sanitizedSort === "title" ? "LOWER(title)" : sanitizedSort;
   const sanitizedLimit = parseInt(limit) || 20;
   const sanitizedOffset = parseInt(offset) || 0;
 
@@ -71,7 +74,7 @@ export const getMoviesController = async (req, res) => {
       attributes: [],
     },
     distinct: true,
-    order: [[sanitizedSort, sanitizedOrder]],
+    order: [[sequelize.literal(orderClause), sanitizedOrder]],
     limit: sanitizedLimit,
     offset: sanitizedOffset,
   });
