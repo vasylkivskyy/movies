@@ -230,6 +230,16 @@ export const importMoviesController = async (req, res) => {
           format: movie.Format,
         },
       });
+
+      const actors = movie.Stars.split(",").map((actor) => actor.trim());
+      for (const actor of actors) {
+        const [savedActor] = await Actor.findOrCreate({
+          where: { name: actor },
+        });
+
+        await savedMovie.addActor(savedActor);
+      }
+
       if (!created) {
         savedMovie.format = movie.Format;
         await savedMovie.save();
