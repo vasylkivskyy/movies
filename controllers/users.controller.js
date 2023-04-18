@@ -5,11 +5,15 @@ import { code, status } from "../constants/constants.js";
 import { getErrorResponse } from "../helpers/errorResponse.js";
 
 export const userController = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, confirmPassword } = req.body;
 
   const emailRegex = /^\S+@\S+\.\S+$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ message: "Invalid email format" });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: "Passwords do not match" });
   }
 
   const user = await User.findOne({ where: { email: email } });
