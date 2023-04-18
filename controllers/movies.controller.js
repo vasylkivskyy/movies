@@ -196,7 +196,11 @@ export const importMoviesController = async (req, res) => {
       return res.status(400).json({ error: err.message });
     }
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const filePath = path.join(__dirname, "..", req.file.path);
+    if (!req.file?.path) {
+      return res.status(400).json({ message: "File path could not be empty" });
+    }
+
+    const filePath = path.join(__dirname, "..", req.file?.path);
     const fileContents = fs.readFileSync(filePath, "utf-8");
     const movies = [];
 
