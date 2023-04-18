@@ -5,9 +5,16 @@ import { code, status } from "../constants/constants.js";
 import { getErrorResponse } from "../helpers/errorResponse.js";
 
 export const userController = async (req, res) => {
-  const user = await User.findOne({ where: { email: req.body.email } });
+  const { name, email, password } = req.body;
+
+  const emailRegex = /^\S+@\S+\.\S+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ message: "Invalid email format" });
+  }
+
+  const user = await User.findOne({ where: { email: email } });
+
   if (!user) {
-    const { name, email, password } = req.body;
     const salt = await bcrypt.genSalt(10);
     const hashPass = await bcrypt.hash(password, salt);
 

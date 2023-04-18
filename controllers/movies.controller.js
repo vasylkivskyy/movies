@@ -22,7 +22,6 @@ export const createMoviesController = async (req, res) => {
   if (!film.format.includes(format)) {
     return res.status(400).json({ message: "Invalid format." });
   }
-  console.log("title: ", title);
   if (!title.trim()) {
     return res.status(400).json({ message: "Title cannot be empty." });
   }
