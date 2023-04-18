@@ -19,6 +19,9 @@ export const createMoviesController = async (req, res) => {
   if (year > film.maxYear) {
     return res.status(400).json({ message: `Year cannot be in the future.` });
   }
+  if (!film.format.includes(format)) {
+    return res.status(400).json({ message: "Invalid format." });
+  }
 
   const existingMovie = await Movie.findOne({
     where: { title, year },

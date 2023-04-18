@@ -16,4 +16,8 @@ export const file = {
   queryName: "file",
 };
 
-export const film = { minYear: 1850, maxYear: 2023 };
+export const film = {
+  minYear: 1850,
+  maxYear: 2023,
+  format: ["VHS", "DVD", "Blu-Ray"],
+};
