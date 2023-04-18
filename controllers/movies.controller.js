@@ -1,5 +1,5 @@
 import { Movie, Actor } from "../db/models/index.js";
-import { code, status } from "../constants/constants.js";
+import { code, status, film } from "../constants/constants.js";
 import { Op } from "sequelize";
 import { getErrorResponse } from "../helpers/errorResponse.js";
 import fs from "fs";
@@ -11,6 +11,14 @@ import sequelize from "../db/database.js";
 
 export const createMoviesController = async (req, res) => {
   const { title, year, format, actors } = req.body;
+  if (year < film.minYear) {
+    res.status(400).json({
+      message: `Year cannot be older than ${film.minYear}`,
+    });
+  }
+  if (year > film.maxYear) {
+    return res.status(400).json({ message: `Year cannot be in the future.` });
+  }
 
   const existingMovie = await Movie.findOne({
     where: { title, year },
